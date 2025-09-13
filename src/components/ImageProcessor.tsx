@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Download, RefreshCw, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { loadImage, removeWatermarkFromBottomRight } from "@/lib/watermarkRemover";
 
 interface ImageProcessorProps {
   file: File;
@@ -24,7 +25,7 @@ export const ImageProcessor = ({ file, onReset }: ImageProcessorProps) => {
     setImageUrl(url);
 
     // Simulate processing steps
-    simulateProcessing(url);
+    simulateProcessing();
 
     return () => {
       URL.revokeObjectURL(url);
@@ -34,52 +35,45 @@ export const ImageProcessor = ({ file, onReset }: ImageProcessorProps) => {
     };
   }, [file]);
 
-  const simulateProcessing = async (src: string) => {
-    // Step 1: Analyzing
-    setState('analyzing');
-    setProgress(0);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setProgress(25);
+  const simulateProcessing = async () => {
+    try {
+      // Step 1: Analyzing
+      setState('analyzing');
+      setProgress(0);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setProgress(25);
 
-    // Step 2: Removing watermark
-    setState('removing');
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setProgress(75);
-
-    // Step 3: Finalizing
-    setState('finalizing');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setProgress(90);
-
-    // Create a simulated processed image (for demo - in reality this would come from backend)
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
+      // Step 2: Removing watermark
+      setState('removing');
+      setProgress(50);
       
-      // Simulate watermark removal by adding a subtle filter effect
-      if (ctx) {
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+      // Load the image and process it
+      const img = await loadImage(file);
+      console.log('Image loaded, starting watermark removal...');
       
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const processedUrl = URL.createObjectURL(blob);
-          setProcessedUrl(processedUrl);
-          setState('complete');
-          setProgress(100);
-          toast.success("Watermark removed successfully!");
-        }
-      }, 'image/png');
-    };
-    
-    img.src = src;
+      const processedBlob = await removeWatermarkFromBottomRight(img);
+      console.log('Watermark removal completed');
+      
+      setProgress(75);
+
+      // Step 3: Finalizing
+      setState('finalizing');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setProgress(90);
+
+      // Create URL for processed image
+      const processedUrl = URL.createObjectURL(processedBlob);
+      setProcessedUrl(processedUrl);
+      setState('complete');
+      setProgress(100);
+      toast.success("Watermark removed successfully!");
+      
+    } catch (error) {
+      console.error('Processing failed:', error);
+      setState('complete');
+      setProgress(100);
+      toast.error("Failed to remove watermark. Please try again.");
+    }
   };
 
   const getStateText = () => {
