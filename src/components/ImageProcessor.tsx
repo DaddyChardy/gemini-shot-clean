@@ -24,7 +24,7 @@ export const ImageProcessor = ({ file, onReset }: ImageProcessorProps) => {
     setImageUrl(url);
 
     // Simulate processing steps
-    simulateProcessing();
+    simulateProcessing(url);
 
     return () => {
       URL.revokeObjectURL(url);
@@ -34,7 +34,7 @@ export const ImageProcessor = ({ file, onReset }: ImageProcessorProps) => {
     };
   }, [file]);
 
-  const simulateProcessing = async () => {
+  const simulateProcessing = async (src: string) => {
     // Step 1: Analyzing
     setState('analyzing');
     setProgress(0);
@@ -79,7 +79,7 @@ export const ImageProcessor = ({ file, onReset }: ImageProcessorProps) => {
       }, 'image/png');
     };
     
-    img.src = imageUrl;
+    img.src = src;
   };
 
   const getStateText = () => {
