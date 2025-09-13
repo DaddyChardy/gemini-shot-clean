@@ -2,57 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* CleanShot Design System - Professional watermark removal tool */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core theme colors */
+    --background: 250 50% 98%;
+    --foreground: 240 10% 9%;
 
+    /* Card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 9%;
 
+    /* Interactive elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Brand colors - Blue/Purple gradient theme */
+    --primary: 235 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 245 100% 75%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary palette */
+    --secondary: 240 20% 96%;
+    --secondary-foreground: 240 10% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted elements */
+    --muted: 240 10% 95%;
+    --muted-foreground: 240 5% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent system */
+    --accent: 270 95% 75%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status colors */
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 120 60% 50%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders and inputs */
+    --border: 240 10% 90%;
+    --input: 240 10% 92%;
+    --ring: 235 85% 65%;
 
-    --radius: 0.5rem;
+    /* Upload zone */
+    --upload-border: 235 50% 80%;
+    --upload-bg: 235 50% 98%;
+    --upload-hover: 235 80% 95%;
 
-    --sidebar-background: 0 0% 98%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(235 85% 65%), hsl(270 95% 75%));
+    --gradient-background: linear-gradient(135deg, hsl(250 50% 98%), hsl(240 30% 96%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 20% 98%));
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -2px hsl(235 50% 85% / 0.3);
+    --shadow-glow: 0 0 40px hsl(235 85% 65% / 0.2);
+    --shadow-upload: 0 8px 32px -4px hsl(235 50% 80% / 0.4);
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -101,5 +114,59 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-background);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Upload zone styles */
+  .upload-zone {
+    background: var(--gradient-card);
+    border: 2px dashed hsl(var(--upload-border));
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+  }
+
+  .upload-zone:hover {
+    background: hsl(var(--upload-hover));
+    border-color: hsl(var(--primary));
+    box-shadow: var(--shadow-upload);
+    transform: translateY(-2px);
+  }
+
+  .upload-zone.drag-over {
+    background: hsl(var(--upload-hover));
+    border-color: hsl(var(--primary));
+    box-shadow: var(--shadow-glow);
+    transform: scale(1.02);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Floating animation */
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Processing pulse */
+  .processing-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 }
