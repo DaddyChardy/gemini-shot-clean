@@ -1,9 +1,3 @@
-import { pipeline, env } from '@huggingface/transformers';
-
-// Configure transformers.js for better model performance
-env.allowLocalModels = false;
-env.useBrowserCache = false;
-
 const MAX_DIMENSION = 1024;
 
 function drawImageToCanvasResized(image: HTMLImageElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
@@ -35,6 +29,18 @@ function createWhiteMask(roi: ImageData): { mask: Uint8Array; count: number } {
   const { data, width, height } = roi;
   const mask = new Uint8Array(width * height);
   let count = 0;
+
+  // Adaptive luminance threshold relative to ROI
+  let sumL = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const l = 0.299 * r + 0.587 * g + 0.114 * b;
+    sumL += l;
+  }
+  const avgL = sumL / (data.length / 4);
+  const brightnessThreshold = Math.min(255, avgL + 15); // slightly above local average
+  const maxChannelDiff = 28; // near-gray constraint
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
@@ -42,7 +48,9 @@ function createWhiteMask(roi: ImageData): { mask: Uint8Array; count: number } {
       const g = data[i + 1];
       const b = data[i + 2];
       const a = data[i + 3];
-      if (a > 200 && r > 235 && g > 235 && b > 235) {
+      const l = 0.299 * r + 0.587 * g + 0.114 * b;
+      const grayish = Math.abs(r - g) < maxChannelDiff && Math.abs(r - b) < maxChannelDiff && Math.abs(g - b) < maxChannelDiff;
+      if (a > 120 && grayish && l > brightnessThreshold) {
         mask[y * width + x] = 1;
         count++;
       }
